@@ -1,1 +1,93 @@
-html <!DOCTYPE html><html lang="da"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>NordMatch</title><style>*{box-sizing:border-box;margin:0;padding:;padding:
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>NordMatch</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #111827, #1f2937);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      text-align: center;
+      padding: 40px;
+      width: 90%;
+      max-width: 600px;
+    }
+
+    h1 {
+      font-size: 52px;
+      margin-bottom: 15px;
+    }
+
+    h1 span {
+      color: #ff4f7b;
+    }
+
+    p {
+      font-size: 20px;
+      color: #d1d5db;
+      margin-bottom: 30px;
+      line-height: 1.5;
+    }
+
+    button {
+      background: #ff4f7b;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 18px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #e63e68;
+    }
+
+    .small {
+      margin-top: 25px;
+      font-size: 14px;
+      color: #9ca3af;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <h1>Nord<span>Match</span></h1>
+
+    <p>
+      Danimarka'da yeni insanlarla tanış.<br>
+      Kayıt ücretsiz, mesajlaşma sistemi yakında aktif olacak.
+    </p>
+
+    <button onclick="alert('NordMatch çalışıyor!')">
+      Başla
+    </button>
+
+    <div class="small">
+      NordMatch © 2026
+    </div>
+
+  </div>
+
+</body>
+</html>

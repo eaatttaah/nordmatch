@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="da">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>NordMatch</title>
+  <title>NordMatch – Dating in Denmark</title>
 
   <style>
     * {
@@ -15,79 +14,430 @@
 
     body {
       font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #111827, #1f2937);
-      color: white;
-      min-height: 100vh;
+      background: #f7f7f9;
+      color: #222;
+    }
+
+    header {
+      background: white;
+      padding: 18px 7%;
       display: flex;
-      justify-content: center;
+      justify-content: space-between;
       align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
     }
 
-    .container {
+    .logo {
+      font-size: 28px;
+      font-weight: bold;
+      color: #e63963;
+    }
+
+    nav button {
+      border: none;
+      background: transparent;
+      margin-left: 15px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .signup {
+      background: #e63963;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 25px;
+    }
+
+    .hero {
+      min-height: 420px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       text-align: center;
-      padding: 40px;
-      width: 90%;
-      max-width: 600px;
+      padding: 50px 20px;
+      background: linear-gradient(135deg,#ff6b8a,#ff9a76);
+      color: white;
     }
 
-    h1 {
+    .hero h1 {
       font-size: 52px;
       margin-bottom: 15px;
     }
 
-    h1 span {
-      color: #ff4f7b;
-    }
-
-    p {
+    .hero p {
       font-size: 20px;
-      color: #d1d5db;
-      margin-bottom: 30px;
-      line-height: 1.5;
+      margin-bottom: 25px;
     }
 
-    button {
-      background: #ff4f7b;
-      color: white;
+    .hero button {
       border: none;
-      padding: 15px 30px;
-      font-size: 18px;
-      border-radius: 10px;
+      background: white;
+      color: #e63963;
+      font-size: 17px;
+      font-weight: bold;
+      padding: 14px 28px;
+      border-radius: 30px;
       cursor: pointer;
     }
 
-    button:hover {
-      background: #e63e68;
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 50px 20px;
     }
 
-    .small {
-      margin-top: 25px;
-      font-size: 14px;
-      color: #9ca3af;
+    .container h2 {
+      text-align: center;
+      margin-bottom: 35px;
+      font-size: 32px;
+    }
+
+    .profiles {
+      display: grid;
+      grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+      gap: 25px;
+    }
+
+    .profile {
+      background: white;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 5px 20px rgba(0,0,0,.08);
+      transition: .2s;
+    }
+
+    .profile:hover {
+      transform: translateY(-5px);
+    }
+
+    .profile-image {
+      height: 230px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 70px;
+      background: #eee;
+    }
+
+    .profile-info {
+      padding: 18px;
+    }
+
+    .profile-info h3 {
+      margin-bottom: 7px;
+    }
+
+    .profile-info p {
+      color: #777;
+      margin-bottom: 15px;
+    }
+
+    .profile-info button {
+      width: 100%;
+      border: none;
+      background: #e63963;
+      color: white;
+      padding: 11px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    .info {
+      background: white;
+      text-align: center;
+      padding: 45px 20px;
+    }
+
+    .info h2 {
+      margin-bottom: 15px;
+    }
+
+    .price {
+      font-size: 30px;
+      font-weight: bold;
+      color: #e63963;
+      margin: 15px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px;
+      color: #777;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-box {
+      background: white;
+      width: 100%;
+      max-width: 420px;
+      border-radius: 20px;
+      padding: 30px;
+    }
+
+    .modal-box h2 {
+      margin-bottom: 20px;
+    }
+
+    .modal-box input,
+    .modal-box textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+    }
+
+    .main-button {
+      width: 100%;
+      padding: 13px;
+      background: #e63963;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    .close {
+      float: right;
+      cursor: pointer;
+      font-size: 22px;
+    }
+
+    @media(max-width:600px) {
+      .hero h1 {
+        font-size: 38px;
+      }
+
+      nav {
+        display: none;
+      }
     }
   </style>
 </head>
 
 <body>
 
-  <div class="container">
+<header>
+  <div class="logo">NordMatch ❤️</div>
 
-    <h1>Nord<span>Match</span></h1>
+  <nav>
+    <button onclick="openLogin()">Log ind</button>
+    <button class="signup" onclick="openSignup()">Opret profil</button>
+  </nav>
+</header>
+
+<section class="hero">
+  <div>
+    <h1>Find din næste date ❤️</h1>
 
     <p>
-      Danimarka'da yeni insanlarla tanış.<br>
-      Kayıt ücretsiz, mesajlaşma sistemi yakında aktif olacak.
+      Mød singler fra hele Danmark på NordMatch.
     </p>
 
-    <button onclick="alert('NordMatch çalışıyor!')">
-      Başla
+    <button onclick="openSignup()">
+      Opret gratis profil
     </button>
+  </div>
+</section>
 
-    <div class="small">
-      NordMatch © 2026
+<section class="container">
+
+  <h2>Populære profiler</h2>
+
+  <div class="profiles">
+
+    <div class="profile">
+      <div class="profile-image">👩🏼</div>
+      <div class="profile-info">
+        <h3>Emma, 24</h3>
+        <p>København</p>
+        <button onclick="message('Emma')">Send besked</button>
+      </div>
+    </div>
+
+    <div class="profile">
+      <div class="profile-image">👩🏻</div>
+      <div class="profile-info">
+        <h3>Sofie, 27</h3>
+        <p>Aarhus</p>
+        <button onclick="message('Sofie')">Send besked</button>
+      </div>
+    </div>
+
+    <div class="profile">
+      <div class="profile-image">👨🏼</div>
+      <div class="profile-info">
+        <h3>Lucas, 29</h3>
+        <p>Odense</p>
+        <button onclick="message('Lucas')">Send besked</button>
+      </div>
+    </div>
+
+    <div class="profile">
+      <div class="profile-image">👨🏻</div>
+      <div class="profile-info">
+        <h3>Oliver, 26</h3>
+        <p>Aalborg</p>
+        <button onclick="message('Oliver')">Send besked</button>
+      </div>
     </div>
 
   </div>
+</section>
+
+<section class="info">
+
+  <h2>Enkel og gennemsigtig pris</h2>
+
+  <p>
+    Det er gratis at oprette en profil og se andre medlemmer.
+  </p>
+
+  <div class="price">
+    5 DKK pr. besked
+  </div>
+
+  <p>Du betaler kun, når du sender en besked.</p>
+
+</section>
+
+<footer>
+  © 2026 NordMatch · Danmark
+</footer>
+
+
+<div class="modal" id="signupModal">
+
+  <div class="modal-box">
+
+    <span class="close" onclick="closeModals()">×</span>
+
+    <h2>Opret profil</h2>
+
+    <input type="text" placeholder="Navn">
+
+    <input type="email" placeholder="E-mail">
+
+    <input type="password" placeholder="Adgangskode">
+
+    <input type="number" placeholder="Alder">
+
+    <button class="main-button" onclick="demoSignup()">
+      Opret gratis profil
+    </button>
+
+  </div>
+
+</div>
+
+
+<div class="modal" id="loginModal">
+
+  <div class="modal-box">
+
+    <span class="close" onclick="closeModals()">×</span>
+
+    <h2>Log ind</h2>
+
+    <input type="email" placeholder="E-mail">
+
+    <input type="password" placeholder="Adgangskode">
+
+    <button class="main-button" onclick="demoLogin()">
+      Log ind
+    </button>
+
+  </div>
+
+</div>
+
+
+<div class="modal" id="messageModal">
+
+  <div class="modal-box">
+
+    <span class="close" onclick="closeModals()">×</span>
+
+    <h2 id="messageTitle">Send besked</h2>
+
+    <textarea
+      rows="5"
+      placeholder="Skriv din besked..."
+    ></textarea>
+
+    <button class="main-button" onclick="sendMessage()">
+      Send besked · 5 DKK
+    </button>
+
+  </div>
+
+</div>
+
+
+<script>
+
+function openSignup() {
+  document.getElementById("signupModal").style.display = "flex";
+}
+
+function openLogin() {
+  document.getElementById("loginModal").style.display = "flex";
+}
+
+function closeModals() {
+
+  document.getElementById("signupModal").style.display = "none";
+
+  document.getElementById("loginModal").style.display = "none";
+
+  document.getElementById("messageModal").style.display = "none";
+}
+
+function message(name) {
+
+  document.getElementById("messageTitle").innerText =
+    "Send besked til " + name;
+
+  document.getElementById("messageModal").style.display = "flex";
+}
+
+function demoSignup() {
+  alert("Demo: Profil oprettet!");
+  closeModals();
+}
+
+function demoLogin() {
+  alert("Demo: Du er logget ind!");
+  closeModals();
+}
+
+function sendMessage() {
+
+  alert(
+    "Demo: Beskeden er sendt. I den rigtige version vil betalingen på 5 DKK ske her."
+  );
+
+  closeModals();
+}
+
+window.onclick = function(event) {
+
+  if (event.target.classList.contains("modal")) {
+    closeModals();
+  }
+
+}
+
+</script>
 
 </body>
 </html>

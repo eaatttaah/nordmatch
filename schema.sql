@@ -1,0 +1,84 @@
+
+CREATE TABLE IF NOT EXISTS users (
+  id BIGSERIAL PRIMARY KEY,
+  name VARCHAR(80) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  age INTEGER NOT NULL CHECK (age >= 18),
+  city VARCHAR(80) NOT NULL,
+  country VARCHAR(8) NOT NULL,
+  language VARCHAR(8) NOT NULL,
+  gender VARCHAR(20) NOT NULL,
+  seeking VARCHAR(20) NOT NULL,
+  bio VARCHAR(500) DEFAULT '',
+  avatar TEXT DEFAULT '',
+  coins INTEGER NOT NULL DEFAULT 100,
+  verified BOOLEAN NOT NULL DEFAULT FALSE,
+  email_verified BOOLEAN NOT NULL DEFAULT FALSE,
+  verification_status VARCHAR(30) NOT NULL DEFAULT 'none',
+  is_admin BOOLEAN NOT NULL DEFAULT FALSE,
+  last_seen TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS likes (
+  from_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+  to_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY(from_id,to_id)
+);
+
+CREATE TABLE IF NOT EXISTS passes (
+  from_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+  to_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+  PRIMARY KEY(from_id,to_id)
+);
+
+CREATE TABLE IF NOT EXISTS blocks (
+  blocker_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+  blocked_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY(blocker_id,blocked_id)
+);
+
+CREATE TABLE IF NOT EXISTS messages (
+  id BIGSERIAL PRIMARY KEY,
+  sender_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+  receiver_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+  text TEXT DEFAULT '',
+  image_path TEXT DEFAULT '',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS notifications (
+  id BIGSERIAL PRIMARY KEY,
+  user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+  type VARCHAR(30) NOT NULL,
+  text TEXT NOT NULL,
+  from_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
+  seen BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS reports (
+  id BIGSERIAL PRIMARY KEY,
+  reporter_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+  reported_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+  reason VARCHAR(300) NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'open',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS transactions (
+  id BIGSERIAL PRIMARY KEY,
+  user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+  type VARCHAR(30) NOT NULL,
+  coins INTEGER NOT NULL,
+  label VARCHAR(120) NOT NULL,
+  provider_ref TEXT DEFAULT '',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_users_country ON users(country);
+CREATE INDEX IF NOT EXISTS idx_messages_pair ON messages(sender_id, receiver_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, seen, created_at);

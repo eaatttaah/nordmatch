@@ -1,7 +1,7 @@
 
-const SUPABASE_URL = "https://tmolmicahqjudwtxaejd.supabase.co";
+const SUPABASE_URL = "https://tmolmicahqjudwtxaejd.sb.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_de_8icaR1H8Z-YrWO08IQg_rGqOb-0x";
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
 const app = document.getElementById('app');
 const countries = ['Danimarka','Türkiye','Norveç','İsveç','Almanya','İngiltere','Fransa','Hollanda','Belçika','İsviçre','Avusturya','İspanya','İtalya','Polonya','Macaristan'];
@@ -30,13 +30,13 @@ function initials(n='N'){return (n||'N').slice(0,1).toUpperCase()}
 function toast(msg){state.toast=msg;render();setTimeout(()=>{state.toast='';render()},1800)}
 
 async function boot(){
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await sb.auth.getSession();
   state.session = session;
   state.user = session?.user || null;
   if(state.user) await loadCurrentProfile();
   render();
 
-  supabase.auth.onAuthStateChange(async (_event, session)=>{
+  sb.auth.onAuthStateChange(async (_event, session)=>{
     state.session=session;
     state.user=session?.user||null;
     if(state.user) await loadCurrentProfile();
@@ -46,16 +46,16 @@ async function boot(){
 }
 
 async function loadCurrentProfile(){
-  const {data,error}=await supabase.from('profiles').select('*').eq('id',state.user.id).single();
+  const {data,error}=await sb.from('profiles').select('*').eq('id',state.user.id).single();
   if(error) console.error(error);
   state.profile=data||null;
-  const {data:w}=await supabase.from('wallets').select('*').eq('user_id',state.user.id).maybeSingle();
+  const {data:w}=await sb.from('wallets').select('*').eq('user_id',state.user.id).maybeSingle();
   state.wallet=w||null;
 }
 
 async function loadProfiles(){
   if(!state.user) return;
-  let q=supabase.from('profiles').select('*').neq('id',state.user.id).order('created_at',{ascending:false});
+  let q=sb.from('profiles').select('*').neq('id',state.user.id).order('created_at',{ascending:false});
   const {data,error}=await q;
   if(error) return toast('Profiller alınamadı');
   state.profiles=data||[];
@@ -63,13 +63,13 @@ async function loadProfiles(){
 
 async function loadConversations(){
   const uid=state.user.id;
-  const {data,error}=await supabase.from('conversations').select('*').or(`user_1.eq.${uid},user_2.eq.${uid}`).order('updated_at',{ascending:false});
+  const {data,error}=await sb.from('conversations').select('*').or(`user_1.eq.${uid},user_2.eq.${uid}`).order('updated_at',{ascending:false});
   if(error){console.error(error);return}
   const convs=data||[];
   const partnerIds=[...new Set(convs.map(c=>c.user_1===uid?c.user_2:c.user_1))];
   let people=[];
   if(partnerIds.length){
-    const {data:p}=await supabase.from('profiles').select('*').in('id',partnerIds);
+    const {data:p}=await sb.from('profiles').select('*').in('id',partnerIds);
     people=p||[];
   }
   state.conversations=convs.map(c=>({
@@ -79,7 +79,7 @@ async function loadConversations(){
 }
 
 async function openConversationByUser(targetId){
-  const {data,error}=await supabase.rpc('get_or_create_conversation',{target_user:targetId});
+  const {data,error}=await sb.rpc('get_or_create_conversation',{target_user:targetId});
   if(error){console.error(error);return toast('Sohbet açılamadı. SQL patch çalıştı mı?')}
   await loadConversations();
   state.selectedConversation=data;
@@ -91,14 +91,14 @@ async function openConversationByUser(targetId){
 }
 
 async function loadMessages(conversationId){
-  const {data,error}=await supabase.from('messages').select('*').eq('conversation_id',conversationId).order('created_at',{ascending:true});
+  const {data,error}=await sb.from('messages').select('*').eq('conversation_id',conversationId).order('created_at',{ascending:true});
   if(error){console.error(error);return}
   state.messages=data||[];
 }
 
 function subscribeMessages(conversationId){
-  if(state.realtimeChannel) supabase.removeChannel(state.realtimeChannel);
-  state.realtimeChannel=supabase.channel('conversation-'+conversationId)
+  if(state.realtimeChannel) sb.removeChannel(state.realtimeChannel);
+  state.realtimeChannel=sb.channel('conversation-'+conversationId)
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`conversation_id=eq.${conversationId}`},payload=>{
       if(!state.messages.some(m=>m.id===payload.new.id)){
         state.messages.push(payload.new);
@@ -229,12 +229,12 @@ function walletView(){
 
 async function loadMatches(){
  const uid=state.user.id;
- const {data,error}=await supabase.from('matches').select('*').or(`user_1.eq.${uid},user_2.eq.${uid}`).order('created_at',{ascending:false});
+ const {data,error}=await sb.from('matches').select('*').or(`user_1.eq.${uid},user_2.eq.${uid}`).order('created_at',{ascending:false});
  const el=document.getElementById('matchesList'); if(!el)return;
  if(error){el.innerHTML='<div class="empty card">Eşleşmeler alınamadı.</div>';return}
  const ids=(data||[]).map(m=>m.user_1===uid?m.user_2:m.user_1);
  if(!ids.length){el.innerHTML='<div class="empty card">Henüz eşleşme yok.</div>';return}
- const {data:people}=await supabase.from('profiles').select('*').in('id',ids);
+ const {data:people}=await sb.from('profiles').select('*').in('id',ids);
  el.innerHTML=(people||[]).map(p=>`<div class="list-item"><div><strong>${esc(p.name||'Kullanıcı')}</strong><div class="muted">${esc(p.city||'')} · ${esc(p.country||'')}</div></div><button class="btn btn-dark" data-match-msg="${p.id}">Mesaj</button></div>`).join('');
  document.querySelectorAll('[data-match-msg]').forEach(b=>b.onclick=()=>openConversationByUser(b.dataset.matchMsg));
 }
@@ -247,14 +247,14 @@ async function bindShell(){
    render();
    if(state.view==='matches') loadMatches();
  });
- document.getElementById('logout').onclick=()=>supabase.auth.signOut();
+ document.getElementById('logout').onclick=()=>sb.auth.signOut();
 
  const search=document.getElementById('search'),cf=document.getElementById('countryFilter');
  const filter=()=>{document.querySelectorAll('.p-card').forEach(c=>{let q=(search?.value||'').toLowerCase(),country=cf?.value||'';let ok=(!q||(c.dataset.name.includes(q)||c.dataset.city.includes(q)))&&(!country||c.dataset.country===country);c.style.display=ok?'':'none'})};
  if(search)search.oninput=filter;if(cf)cf.onchange=filter;
 
  document.querySelectorAll('[data-like]').forEach(b=>b.onclick=async()=>{
-   const {data,error}=await supabase.rpc('like_profile',{target_user:b.dataset.like});
+   const {data,error}=await sb.rpc('like_profile',{target_user:b.dataset.like});
    if(error) return toast('Beğeni gönderilemedi. SQL patch çalıştı mı?');
    b.textContent='♥ Beğenildi';
    toast(data?.matched?'Yeni eşleşme!':'Beğeni gönderildi');
@@ -277,7 +277,7 @@ async function bindShell(){
    const text=chatForm.message.value.trim();
    if(!text)return;
    chatForm.message.value='';
-   const {error}=await supabase.from('messages').insert({conversation_id:state.selectedConversation,sender_id:state.user.id,message_text:text});
+   const {error}=await sb.from('messages').insert({conversation_id:state.selectedConversation,sender_id:state.user.id,message_text:text});
    if(error) toast('Mesaj gönderilemedi');
  };
 
@@ -285,7 +285,7 @@ async function bindShell(){
  if(pf) pf.onsubmit=async e=>{
    e.preventDefault();const fd=new FormData(e.target);
    const updates={name:fd.get('name'),age:+fd.get('age'),city:fd.get('city'),country:fd.get('country'),language:fd.get('language'),job:fd.get('job'),bio:fd.get('bio')};
-   const {error}=await supabase.from('profiles').update(updates).eq('id',state.user.id);
+   const {error}=await sb.from('profiles').update(updates).eq('id',state.user.id);
    if(error)return toast('Profil kaydedilemedi');
    await loadCurrentProfile();toast('Profil kaydedildi');
  };
@@ -296,11 +296,11 @@ async function bindShell(){
    if(file.size>5*1024*1024)return toast('Fotoğraf en fazla 5 MB olabilir');
    const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
    const path=`${state.user.id}/avatar.${ext}`;
-   const {error:upErr}=await supabase.storage.from('avatars').upload(path,file,{upsert:true,contentType:file.type});
+   const {error:upErr}=await sb.storage.from('avatars').upload(path,file,{upsert:true,contentType:file.type});
    if(upErr)return toast('Fotoğraf yüklenemedi');
-   const {data}=supabase.storage.from('avatars').getPublicUrl(path);
+   const {data}=sb.storage.from('avatars').getPublicUrl(path);
    const url=data.publicUrl+'?v='+Date.now();
-   const {error}=await supabase.from('profiles').update({avatar_url:url}).eq('id',state.user.id);
+   const {error}=await sb.from('profiles').update({avatar_url:url}).eq('id',state.user.id);
    if(error)return toast('Profil fotoğrafı kaydedilemedi');
    await loadCurrentProfile();toast('Fotoğraf yüklendi');
  };
@@ -309,7 +309,7 @@ async function bindShell(){
  if(report)report.onclick=async()=>{
    const partner=state.selectedPartner||state.conversations.find(c=>c.id===state.selectedConversation)?.partner;
    const reason=prompt('Şikâyet nedeni:');if(!reason)return;
-   const {error}=await supabase.from('reports').insert({reporter_id:state.user.id,reported_id:partner.id,reason});
+   const {error}=await sb.from('reports').insert({reporter_id:state.user.id,reported_id:partner.id,reason});
    if(error)return toast('Şikâyet gönderilemedi');toast('Şikâyet gönderildi');
  };
 
@@ -317,7 +317,7 @@ async function bindShell(){
  if(block)block.onclick=async()=>{
    const partner=state.selectedPartner||state.conversations.find(c=>c.id===state.selectedConversation)?.partner;
    if(!confirm(`${partner?.name||'Bu kullanıcı'} engellensin mi?`))return;
-   const {error}=await supabase.from('blocks').insert({blocker_id:state.user.id,blocked_id:partner.id});
+   const {error}=await sb.from('blocks').insert({blocker_id:state.user.id,blocked_id:partner.id});
    if(error&&error.code!=='23505')return toast('Engelleme başarısız');
    toast('Kullanıcı engellendi');
  };
@@ -337,13 +337,13 @@ function bindAuth(){
  const login=document.getElementById('loginForm');
  if(login)login.onsubmit=async e=>{
    e.preventDefault();const fd=new FormData(e.target);
-   const {error}=await supabase.auth.signInWithPassword({email:fd.get('email'),password:fd.get('password')});
+   const {error}=await sb.auth.signInWithPassword({email:fd.get('email'),password:fd.get('password')});
    if(error){state.authMessage='HATA:'+error.message;render()}
  };
  const reg=document.getElementById('registerForm');
  if(reg)reg.onsubmit=async e=>{
    e.preventDefault();const fd=new FormData(e.target);
-   const {data,error}=await supabase.auth.signUp({
+   const {data,error}=await sb.auth.signUp({
      email:fd.get('email'),password:fd.get('password'),
      options:{data:{name:fd.get('name'),age:fd.get('age'),city:fd.get('city'),country:fd.get('country'),language:state.locale.language,gender:fd.get('gender'),looking_for:fd.get('looking_for')}}
    });
@@ -366,11 +366,11 @@ async function prepareLoggedIn(){
 }
 
 (async()=>{
- const {data:{session}}=await supabase.auth.getSession();
+ const {data:{session}}=await sb.auth.getSession();
  state.session=session;state.user=session?.user||null;
  if(state.user)await prepareLoggedIn();
  render();
- supabase.auth.onAuthStateChange(async (_event,session)=>{
+ sb.auth.onAuthStateChange(async (_event,session)=>{
    state.session=session;state.user=session?.user||null;
    if(state.user)await prepareLoggedIn();
    else{state.profile=null;state.profiles=[];state.conversations=[];state.messages=[]}
